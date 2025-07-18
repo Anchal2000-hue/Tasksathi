@@ -1,0 +1,207 @@
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    display: flex;
+    margin: 0;
+    background-color: #f9f9f9;
+}
+
+.sidebar {
+    width: 220px;
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.05);
+}
+
+.sidebar h2 {
+    text-align: center;
+    padding: 20px 0;
+    margin: 0;
+    color: #5a5a5a;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar ul li {
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background 0.3s, color 0.3s;
+    color: #555;
+}
+
+.sidebar ul li.active, .sidebar ul li:hover {
+    background: #a5d8ff;
+    color: #003049;
+}
+
+.profile {
+    display: flex;
+    align-items: center;
+    padding: 20px;
+    border-top: 1px solid #f0f0f0;
+    background: #f0f4f8;
+}
+
+.profile img {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+}
+
+.logout-btn {
+    background-color: #ffadad;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: auto;
+    transition: background 0.3s;
+}
+
+.logout-btn:hover {
+    background-color: #ff6b6b;
+}
+
+.main-content {
+    flex: 1;
+    padding: 30px;
+}
+
+.section {
+    display: none;
+}
+
+.section.active {
+    display: block;
+}
+
+form, table, .stat-card {
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    margin-bottom: 25px;
+}
+
+form input, form select, button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+button {
+    background-color: #caffbf;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #b7f7a5;
+}
+
+.stat-card {
+    margin-bottom: 20px;
+    text-align: center;
+    background: #edf6f9;
+}
+
+.delete-btn {
+    background: #ffadad;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.delete-btn:hover {
+    background: #ff6b6b;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    text-align: left;
+    padding: 12px 8px;
+    border-bottom: 1px solid #eee;
+}
+
+th {
+    background-color: #f1faee;
+    color: #333;
+}
+
+tr:hover {
+    background-color: #e3f2fd;
+}
+body.dark-mode {
+    background-color: #121212;
+    color: #f0f0f0;
+}
+
+body.dark-mode .sidebar {
+    background: #1e1e1e;
+    border-right: 1px solid #333;
+}
+
+body.dark-mode .sidebar ul li {
+    border-bottom: 1px solid #333;
+    color: #ddd;
+}
+
+body.dark-mode .sidebar ul li.active,
+body.dark-mode .sidebar ul li:hover {
+    background: #3b82f6;
+    color: #fff;
+}
+
+body.dark-mode .profile {
+    background: #2a2a2a;
+    border-top: 1px solid #333;
+}
+
+body.dark-mode .main-content,
+body.dark-mode form,
+body.dark-mode table,
+body.dark-mode .stat-card {
+    background: #1e1e1e;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+body.dark-mode form input,
+body.dark-mode form select,
+body.dark-mode button {
+    background: #2a2a2a;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+body.dark-mode table th {
+    background-color: #333;
+    color: #f0f0f0;
+}
+
+body.dark-mode table tr:hover {
+    background-color: #333;
+}

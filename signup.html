@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup - Task Tracker</title>
+    <style>
+        body { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f0f0f0; }
+        .signup-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 300px; }
+        h2 { text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; }
+        button { width: 100%; padding: 10px; background-color: #3b82f6; color: white; border: none; cursor: pointer; border-radius: 4px; }
+        .error-message, .success-message { text-align: center; margin: 10px 0; }
+        .error-message { color: red; display: none; }
+        .success-message { color: green; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="signup-container">
+    <h2>Signup</h2>
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage">Signup successful! Redirecting...</div>
+    <input type="email" id="email" placeholder="Email" required>
+    <input type="password" id="password" placeholder="Password" required>
+    <button id="signupBtn">Signup</button>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyBIYd0IHOdmORcm06AhDk4geGwSuo0zdOk",
+        authDomain: "task-tracker-6dba8.firebaseapp.com",
+        projectId: "task-tracker-6dba8",
+        storageBucket: "task-tracker-6dba8.firebasestorage.app",
+        messagingSenderId: "966237745115",
+        appId: "1:966237745115:web:3980148034029cf5c381fe",
+        measurementId: "G-X6G0K0QQ7M"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            successMessage.style.display = 'block';
+            errorMessage.style.display = 'none';
+
+            setTimeout(() => {
+                window.location.href = 'index.html'; // Redirect to login page
+            }, 1500);
+
+        } catch (error) {
+            console.error('Signup error', error);
+            errorMessage.textContent = 'Signup failed: ' + error.message;
+            errorMessage.style.display = 'block';
+        }
+    });
+</script>
+
+</body>
+</html>

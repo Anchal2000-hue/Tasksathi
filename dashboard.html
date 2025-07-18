@@ -1,0 +1,283 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker with Firebase Firestore</title>
+    <link rel="stylesheet"href="style.css">
+
+    <style>
+        * { box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { display: flex; margin: 0; background-color: #f5f5f5; }
+        .sidebar { width: 220px; background: #fff; border-right: 1px solid #ddd; height: 100vh; display: flex; flex-direction: column; justify-content: space-between; }
+        .sidebar h2 { text-align: center; padding: 20px 0; }
+        .sidebar ul { list-style: none; padding: 0; }
+        .sidebar ul li { padding: 15px 20px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .sidebar ul li.active, .sidebar ul li:hover { background: #3b82f6; color: white; }
+        .profile { display: flex; align-items: center; padding: 20px; }
+        .profile img { border-radius: 50%; width: 40px; height: 40px; margin-right: 10px; }
+        .logout-btn { background-color: #ef4444; color: white; border: none; padding: 5px 10px; cursor: pointer; border-radius: 4px; margin-left: auto; }
+        .main-content { flex: 1; padding: 20px; }
+        .section { display: none; }
+        .section.active { display: block; }
+        .success-message { color: green; margin-bottom: 15px; display: none; }
+        .stat-card, form, table { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        form input, form select, button { width: 100%; margin: 5px 0; padding: 8px; }
+        .delete-btn { color: white; background: red; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<body>
+    <div class="sidebar">
+        <div>
+            <h2>TASK TRACKER</h2>
+            <ul>
+                <li class="nav-item active" data-section="dashboard">Dashboard</li>
+                <li class="nav-item" data-section="tasks">Tasks</li>
+                <li class="nav-item" data-section="employees">Employees</li>
+                <li class="nav-item" data-section="reports">Reports</li>
+            </ul>
+        </div>
+        <div class="profile">
+            <img src="https://via.placeholder.com/40" alt="Profile">
+            <span id="profileName">User</span>
+            <button class="logout-btn" id="logoutBtn">Logout</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div id="dashboard" class="section active">
+            <h3>Dashboard</h3>
+            <div class="stats">
+                <div class="stat-card">
+                    <div>Assigned Tasks</div>
+                    <h2 id="assignedCount">0</h2>
+                </div>
+                <div class="stat-card">
+                    <div>Completed Tasks</div>
+                    <h2 id="completedCount">0</h2>
+                </div>
+                <div class="stat-card">
+                    <div>Pending Tasks</div>
+                    <h2 id="pendingCount">0</h2>
+                </div>
+            </div>
+        </div>
+        <button id="themeToggle" style="margin-bottom: 20px;">Switch to Dark Mode</button>
+
+
+
+        <div id="tasks" class="section">
+            <h3>Tasks</h3>
+            <form id="taskForm">
+                <input type="text" id="taskName" placeholder="Task Name" required>
+                <input type="text" id="employeeName" placeholder="Employee Name" required>
+                <input type="date" id="dueDate" required>
+                <select id="status">
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Pending">Pending</option>
+                </select>
+                <button type="submit">Add Task</button>
+            </form>
+            <button id="exportPdfBtn">Export Tasks to PDF</button>
+
+
+            <h4>Task List</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Employee</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody id="taskTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="employees" class="section">
+            <h3>Employees</h3>
+            <form id="employeeForm">
+                <input type="text" id="empName" placeholder="Name" required>
+                <input type="email" id="empEmail" placeholder="Email" required>
+                <input type="text" id="empRole" placeholder="Role" required>
+                <button type="submit">Add Employee</button>
+            </form>
+
+            <h4>Employee List</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="employeeTableBody"></tbody>
+            </table>
+        </div>
+
+        <div id="reports" class="section">
+            <h3>Reports</h3>
+            <p>Reports and analytics coming soon...</p>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIYd0IHOdmORcm06AhDk4geGwSuo0zdOk",
+            authDomain: "task-tracker-6dba8.firebaseapp.com",
+            projectId: "task-tracker-6dba8",
+            storageBucket: "task-tracker-6dba8.firebasestorage.app",
+            messagingSenderId: "966237745115",
+            appId: "1:966237745115:web:3980148034029cf5c381fe",
+            measurementId: "G-X6G0K0QQ7M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        async function loadEmployees() {
+            const querySnapshot = await getDocs(collection(db, 'employees'));
+            const employees = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderEmployees(employees);
+        }
+
+        function renderEmployees(employees) {
+            const tbody = document.getElementById('employeeTableBody');
+            tbody.innerHTML = '';
+
+            employees.forEach(emp => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${emp.name}</td>
+                        <td>${emp.email}</td>
+                        <td>${emp.role}</td>
+                        <td><button class='delete-btn' onclick='deleteEmployee("${emp.id}")'>Delete</button></td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.deleteEmployee = async function(id) {
+            try {
+                await deleteDoc(doc(db, 'employees', id));
+                loadEmployees();
+            } catch (err) {
+                console.error('Error deleting employee', err);
+            }
+        }
+
+        document.getElementById('employeeForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const employee = {
+                name: document.getElementById('empName').value,
+                email: document.getElementById('empEmail').value,
+                role: document.getElementById('empRole').value
+            };
+
+            try {
+                await addDoc(collection(db, 'employees'), employee);
+                this.reset();
+                loadEmployees();
+            } catch (error) {
+                console.error('Error adding employee:', error);
+            }
+        });
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+
+                const section = this.getAttribute('data-section');
+                document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+                document.getElementById(section).classList.add('active');
+            });
+        });
+
+        const username = localStorage.getItem('username') || 'User';
+        document.getElementById('profileName').textContent = username;
+
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            localStorage.removeItem('username');
+            window.location.href = 'index.html';
+        });
+
+        loadEmployees();
+    </script>
+    <script>
+        const toggleButton = document.getElementById('themeToggle');
+
+toggleButton.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+
+    if (document.body.classList.contains('dark-mode')) {
+        toggleButton.textContent = 'Switch to Light Mode';
+    } else {
+        toggleButton.textContent = 'Switch to Dark Mode';
+    }
+});
+
+    </script>
+    <script>
+document.getElementById('exportPdfBtn').addEventListener('click', () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const tableRows = [];
+    const taskTable = document.getElementById('taskTableBody').rows;
+
+    for (let i = 0; i < taskTable.length; i++) {
+        const cells = taskTable[i].cells;
+        tableRows.push([
+            cells[0].textContent,
+            cells[1].textContent,
+            cells[2].textContent,
+            cells[3].textContent
+        ]);
+    }
+
+    doc.setFontSize(18);
+    doc.text('Task Tracker Report', 14, 15);
+
+    doc.setFontSize(12);
+    doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 23);
+
+    doc.autoTable({
+        head: [['Task', 'Employee', 'Due Date', 'Status']],
+        body: tableRows,
+        startY: 30,
+        styles: { 
+            halign: 'center', 
+            fontSize: 10 
+        },
+        headStyles: {
+            fillColor: [63, 81, 181],
+            textColor: 255
+        },
+        alternateRowStyles: {
+            fillColor: [240, 240, 240]
+        }
+    });
+
+    doc.save('TaskList_Report.pdf');
+});
+
+
+    </script>
+    
+
+</body>
+</html>

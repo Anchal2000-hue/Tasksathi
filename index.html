@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Tracker Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background-color: #f5f5f5; }
+        header { background: #3b82f6; color: white; padding: 15px; text-align: center; }
+        .welcome { font-size: 18px; }
+        .content { padding: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Task Tracker</h1>
+    <div class="welcome" id="welcomeUser"></div>
+</header>
+
+<div class="content">
+    <p>Welcome to your dashboard. Your tasks and stats will appear here!</p>
+</div>
+
+<script>
+    const username = localStorage.getItem('username');
+    if (username) {
+        document.getElementById('welcomeUser').textContent = `Welcome, ${username}!`;
+    } else {
+        window.location.href = 'index.html'; // Redirect back if no username is found
+    }
+</script>
+
+</body>
+</html>
