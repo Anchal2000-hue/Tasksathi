@@ -3,33 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Task Tracker</title>
-    <style>
-        body { display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f0f0f0; }
-        .login-container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); width: 300px; }
-        input, button { width: 100%; padding: 10px; margin: 10px 0; }
-        button { background: #3b82f6; color: white; border: none; cursor: pointer; }
-    </style>
+    <title>Login - SunsystechSol Task Tracker</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="login-container">
-    <h2>Enter Username</h2>
-    <input type="text" id="username" placeholder="Username" required>
-    <button id="loginBtn">Go to Dashboard</button>
-</div>
+    <header class="header">
+        <img src="project.jpg" alt="SunsystechSol Logo" class="logo">
+        <h1 class="title">SunsystechSol Task Tracker</h1>
+    </header>
 
-<script>
-    document.getElementById('loginBtn').addEventListener('click', () => {
-        const username = document.getElementById('username').value.trim();
-        if (username) {
-            localStorage.setItem('username', username);
-            window.location.href = 'dashboard.html';
-        } else {
-            alert('Please enter a username.');
-        }
-    });
-</script>
+    <div class="login-container">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Enter Username" required>
+            
+            <select id="role" required>
+                <option value="" disabled selected>Select Role</option>
+                <option value="admin">Admin</option>
+                <option value="employee">Employee</option>
+            </select>
+            
+            <button type="submit">Login</button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const enteredUsername = document.getElementById('username').value;
+            const selectedRole = document.getElementById('role').value;
+
+            if (!selectedRole) {
+                alert('Please select a role.');
+                return;
+            }
+
+            localStorage.setItem('username', enteredUsername);
+            localStorage.setItem('role', selectedRole);
+
+            if (selectedRole === 'admin') {
+                window.location.href = 'dashboard.html';
+            } else if (selectedRole === 'employee') {
+                window.location.href = 'employee_dashboard.html';
+            }
+        });
+    </script>
 
 </body>
 </html>

@@ -6,7 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Tracker Dashboard</title>
     <link rel="stylesheet" href="style.css">
-    <a href="employee_dashboard.html" class="nav-button">Go to Employee Dashboard</a>
+<a href="employee_dashboard.html" class="icon-button">
+    <img src="project.jpg" alt="Employee Icon">
+    <span>Employee Dashboard</span>
+</a>
+
+
 
     <style>
         *{ box-sizing: border-box; font-family: Arial, sans-serif; }
@@ -67,6 +72,9 @@
                     <option value="In Progress">In Progress</option>
                     <option value="Completed">Completed</option>
                     <option value="Pending">Pending</option>
+                    <textarea id="taskNotes" placeholder="Add any notes or comments"></textarea>
+    <button type="submit">Add Task</button>
+                </form>
                 </select>
                 <button type="submit">Add Task</button>
             </form>
@@ -96,6 +104,8 @@
             <p>Reports and analytics coming soon...</p>
         </div>
     </div>
+    
+
 
     <!-- SCRIPTS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -148,7 +158,8 @@
                 task: document.getElementById('taskName').value,
                 employee: document.getElementById('employeeName').value,
                 dueDate: document.getElementById('dueDate').value,
-                status: document.getElementById('status').value
+                status: document.getElementById('status').value,
+                notes: document.getElementById('taskNotes')
             };
             await addDoc(collection(db, 'tasks'), task);
             this.reset();
@@ -204,6 +215,14 @@
         if (username) {
             document.getElementById('welcomeUser').textContent = `Welcome, ${username}!`;
         }
+    </script>
+    <script>
+        const role = localStorage.getItem('role');
+console.log("Logged in as:", role);
+
+    </script>
+    
+
     </script>
 </body>
 </html>

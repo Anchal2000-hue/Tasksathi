@@ -5,69 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Employee Dashboard</title>
     <link rel="stylesheet" href="style.css">
-
-
-
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f5f5f5; margin: 0; padding: 0; }
-        .header { background-color: #3b82f6; color: white; padding: 15px; text-align: center; }
-        .content { padding: 20px; }
-        .task-list, .profile-info { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        button { background-color: #3b82f6; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; }
-        button:hover { background-color: #2563eb; }
-    </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Welcome to Employee Dashboard</h1>
-    </div>
+    <h2>Employee Dashboard</h2>
 
-    <div class="content">
-        <div class="profile-info">
-            <h3>Profile Information</h3>
-            <p><strong>Name:</strong> <span id="empName">Loading...</span></p>
-            <p><strong>Email:</strong> <span id="empEmail">Loading...</span></p>
-            <p><strong>Role:</strong> <span id="empRole">Employee</span></p>
-        </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Task</th>
+                <th>Employee</th>
+                <th>Due Date</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody id="taskTableBody"></tbody>
+    </table>
 
-        <div class="task-list">
-            <h3>Your Assigned Tasks</h3>
-            <ul id="tasksList"></ul>
-        </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-        <button id="backToDashboard">Back to Main Dashboard</button>
-    </div>
-
-    <script>
-        // Dummy data to simulate profile
-        const empProfile = {
-            name: 'Anchal',
-            email: 'anchal@example.com',
-            role: 'Employee'
+        const firebaseConfig = {
+            apiKey: "AIzaSyBIYd0IHOdmORcm06AhDk4geGwSuo0zdOk",
+            authDomain: "task-tracker-6dba8.firebaseapp.com",
+            projectId: "task-tracker-6dba8",
+            storageBucket: "task-tracker-6dba8.appspot.com",
+            messagingSenderId: "966237745115",
+            appId: "1:966237745115:web:3980148034029cf5c381fe",
+            measurementId: "G-X6G0K0QQ7M"
         };
 
-        document.getElementById('empName').textContent = empProfile.name;
-        document.getElementById('empEmail').textContent = empProfile.email;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        // Dummy tasks
-        const tasks = [
-            { task: 'Complete Report', due: '2025-07-30', status: 'In Progress' },
-            { task: 'Attend Meeting', due: '2025-07-22', status: 'Pending' },
-            { task: 'Update Documentation', due: '2025-07-25', status: 'Completed' }
-        ];
+        async function loadTasks() {
+            const querySnapshot = await getDocs(collection(db, 'tasks'));
+            const tasks = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderTasks(tasks);
+        }
 
-        const tasksList = document.getElementById('tasksList');
-        tasks.forEach(t => {
-            const li = document.createElement('li');
-            li.textContent = `${t.task} - Due: ${t.due} - Status: ${t.status}`;
-            tasksList.appendChild(li);
-        });
+        function renderTasks(tasks) {
+            const tbody = document.getElementById('taskTableBody');
+            tbody.innerHTML = '';
 
-        // Back to main dashboard
-        document.getElementById('backToDashboard').addEventListener('click', () => {
-            window.location.href = 'dashboard.html';
-        });
+            tasks.forEach(task => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${task.task}</td>
+                        <td>${task.employee}</td>
+                        <td>${task.dueDate}</td>
+                        <td>${task.status}</td>
+                        <td>
+                            <input type="text" id="note-${task.id}" value="${task.notes || ''}" placeholder="Add a note">
+                        </td>
+                        <td>
+                            <button onclick="saveNote('${task.id}')">Save</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.saveNote = async function(taskId) {
+            const noteInput = document.getElementById(`note-${taskId}`);
+            const note = noteInput.value;
+
+            try {
+                const taskRef = doc(db, 'tasks', taskId);
+                await updateDoc(taskRef, { notes: note });
+                alert('Note saved successfully!');
+                loadTasks(); // Refresh the table
+            } catch (error) {
+                console.error('Error saving note:', error);
+                alert('Failed to save note. Try again.');
+            }
+        };
+
+        loadTasks();
     </script>
 
 </body>
